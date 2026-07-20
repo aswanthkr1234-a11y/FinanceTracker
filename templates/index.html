@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="styleSheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <button id="darkModeBtn" class="btn btn-outline-light">
+    Dark Mode
+  </button>
+    <h1>Personal Finance Tracker</h1>
+    <div class="container">
+        <a class="navbar-brand" href="/">Finance Tracker</a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="/">Dashboard</a>
+          <a class="nav-link" href="/add-income">Income</a>
+          <a class="nav-link" href="/add-expense">Expense</a>
+          <a class="nav-link" href="/report">Reports</a>
+          <span class="navbar-text text-white me-3">Welcome, {{ session['user'] }}</span>
+          <a href="/logout" class="btn btn-outline-light">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-success">{{ message}}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <a href="/">Dashboard</a>
+    <a href="/add-income" class="btn btn-success">Add Income</a>
+    <a href="/add-expense" class="btn btn-danger">Add Expense</a>
+    <a href="/report">Reports</a>
+
+    <a href="/export" class="btn edit-btn">Export to Excel</a>
+    <a href="/export-pdf" class="btn edit-btn">Export PDF</a>
+
+    <form action="/" method="GET">
+        <input type="text" name="search" placeholder="Search Income">
+        <button type="submit">Search</button>
+    </form>
+
+    <form action="/" method="GET">
+        <label>Select Month</label>
+        <select name="month">
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
+    <br>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5>Total Income</h5>
+                    <h2>₹{{ total_income }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5>Total Expense</h5>
+                    <h2>₹{{ total_expense }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5>Savings</h5>
+                    <h2>₹{{ savings }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Budget Overview</h2>
+
+    <div class="card">
+        <h3>Budget : {{ budget }}</h3>
+        <h3>Remaining : {{ remaining }}</h3>
+
+        {% if remaining >=0 %}
+           <p style="color:green;">Within Budget</p>
+        {% else %}
+           <p style="color:red;">budget Exceeded</p>
+        {% endif %}
+    </div>
+
+    <br>
+
+    <a href="/set-budget" class="btn edit-btn">Set Budget</a>
+
+    <h2 class="section-title">Recent Transactions</h2>
+
+    <div class="tabs">
+        <input type="radio" name="tx_tab" id="tab_income" checked>
+        <input type="radio" name="tx_tab" id="tab_expense">
+
+        <div class="tab-buttons">
+            <label for="tab_income">Income</label>
+            <label for="tab_expense">Expense</label>
+        </div>
+
+        <div class="tab-panels">
+            <div class="tab-panel" id="panel_income">
+              <div class="table-responsive">
+                <table class="table-striped table-hover">
+                    <tr>
+                        <th>ID</th>
+                        <th>Source</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                    {% for income in incomes %}
+                    <tr>
+                        <td>{{ income[0] }}</td>
+                        <td>{{ income[1] }}</td>
+                        <td>{{ income[2] }}</td>
+                        <td>₹{{ income[3] }}</td>
+                        <td>{{ income[4] }}</td>
+                        <td>
+                            <a href="/edit-income/{{ income[0] }}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="/delete-income/{{ income[0] }}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="panel_expense">
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Expense</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense[0] }}</td>
+                        <td>{{ expense[1] }}</td>
+                        <td>₹{{ expense[2] }}</td>
+                        <td>
+                            <a href="/edit-expense/{{ expense[0] }}" class="btn edit-btn">Edit</a>
+                            <a href="/delete-expense/{{ expense[0] }}" class="btn delete-btn">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="income-btn">+ Add Income</button>
+        <button class="expense-btn">+ Add Expense</button>
+        <button class="report-btn">View Report</button>
+    </div>
+
+    <h2>Income vs Expense</h2>
+    <canvas id="financeChart" width="400" height="200"></canvas>
+
+    <h2>Income vs Expense (Bar Chart)</h2>
+
+    <div class="chart-controls">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-7">
+                <div class="mb-2">
+                    <label class="form-label"><strong>Show as</strong></label>
+                    <select id="barMetric" class="form-select">
+                        <option value="amount" selected>Total Amount (Income vs Expense)</option>
+                        <option value="percent">Percent Share (Income vs Expense)</option>
+                        <option value="remaining">Remaining vs Spent (Budget vs Expense)</option>
+                    </select>
+                </div>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="toggleIncome" checked>
+                    <label class="form-check-label" for="toggleIncome">Income</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="toggleExpense" checked>
+                    <label class="form-check-label" for="toggleExpense">Expense</label>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="budget-hint text-muted">
+                    <small>“Remaining vs Spent” uses your <strong>Budget</strong> (if set).</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="barchart" width="400" height="200"></canvas>
+
+    <script>
+        const ctx = document.getElementById('financeChart').getContext('2d');
+        const barCtx = document.getElementById('barchart').getContext('2d');
+
+        // Values injected from Flask
+        const incomeVal = parseFloat("{{ total_income | default(0) }}");
+        const expenseVal = parseFloat("{{ total_expense | default(0) }}");
+        const budgetVal = parseFloat("{{ budget | default(0) }}");
+        const remainingVal = parseFloat("{{ remaining | default(0) }}");
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Income', 'Expense'],
+                datasets: [{
+                    data: [incomeVal, expenseVal],
+                    backgroundColor: ['#28a745', '#dc3545']
+                }]
+            }
+        });
+
+        const barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Income', 'Expense'],
+                datasets: [{
+                    label: 'Total Amount',
+                    data: [incomeVal, expenseVal],
+                    backgroundColor: ['#28a745', '#dc3545']
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        function safePercent(part, total) {
+            if (!total || total === 0) return 0;
+            return (part / total) * 100;
+        }
+
+        function updateBarChart() {
+            const metric = document.getElementById('barMetric').value;
+            const incomeOn = document.getElementById('toggleIncome').checked;
+            const expenseOn = document.getElementById('toggleExpense').checked;
+
+            const totalIO = incomeVal + expenseVal;
+
+            let labels = ['Income', 'Expense'];
+            let datasetLabel = 'Total Amount';
+            let data = [incomeVal, expenseVal];
+            let yMax = undefined;
+
+            if (metric === 'percent') {
+                datasetLabel = 'Percent Share (%)';
+                data = [
+                    safePercent(incomeVal, totalIO),
+                    safePercent(expenseVal, totalIO)
+                ];
+                yMax = 100;
+            } else if (metric === 'remaining') {
+                datasetLabel = 'Amount';
+
+                const budgetIsSet = !(isNaN(budgetVal) || budgetVal === 0);
+                const remaining = budgetIsSet ? remainingVal : 0;
+                const spent = budgetIsSet ? expenseVal : 0;
+
+                // In this mode, the checkboxes map to the two bars.
+                labels = ['Remaining', 'Spent'];
+                data = [incomeOn ? remaining : 0, expenseOn ? spent : 0];
+            } else {
+                // metric === 'amount'
+                labels = ['Income', 'Expense'];
+                datasetLabel = 'Total Amount';
+                data = [incomeVal, expenseVal];
+            }
+
+            // Apply toggles for amount/percent modes.
+            if (metric !== 'remaining') {
+                data = [incomeOn ? data[0] : 0, expenseOn ? data[1] : 0];
+            }
+
+            barChart.data.labels = labels;
+            barChart.data.datasets[0].label = datasetLabel;
+            barChart.data.datasets[0].data = data;
+
+            if (yMax !== undefined) {
+                barChart.options.scales.y.max = yMax;
+            } else {
+                delete barChart.options.scales.y.max;
+            }
+
+            barChart.update();
+        }
+
+        document.getElementById('barMetric').addEventListener('change', updateBarChart);
+        document.getElementById('toggleIncome').addEventListener('change', updateBarChart);
+        document.getElementById('toggleExpense').addEventListener('change', updateBarChart);
+
+        updateBarChart();
+    </script>
+
+</div>
+<h2>Analytics</h2>
+<div class="card p-3">
+  <h4>Highest Income Source</h4>
+  {% if top_income %}
+      <p>{{ top_income[0] }}-{{ top_income[1] }}</p>
+  {% else %}
+      <p>No income data available.</p>
+  {% endif %}
+  <h4> Highest Expense</h4> 
+  <h2> Recent Income</h2>
+  <table class="table table-striped">
+    <tr>
+      <th>Source</th>
+      <th>Amount</th>
+    </tr>
+    {% for income in recent_income %}
+  <tr>
+  <td>{{ income[0] }}</td>  
+  <td>{{ income[1] }}</td>
+  </tr>
+  {% endfor %}
+  </table
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
+

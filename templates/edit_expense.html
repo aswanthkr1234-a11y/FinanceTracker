@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Expense</title>
+</head>
+<body>
+    <h1>Edit Expense</h1>
+    <form method="POST">
+
+        <label>Expense</label><br>
+        <input type="text" name="expense" value="{{ expense[1] }}"><br><br>
+
+        <label>Amount</label><br>
+        <input type="number" name="amount" value="{{ expense[2] }}"><br><br>
+
+        <button type="submit">Update Expense</button>
+    </form>
+
+    <br>
+
+    <a href="/"> -Back to Dashboard</a>
+</body>
+</html>

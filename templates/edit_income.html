@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Income</title>
+</head>
+<body>
+    <h1>Edit Income</h1>
+    <form method="POST">
+
+        <label>Source</label><br>
+        <input type="text" name="source" value="{{ income[1] }}"><br><br>
+
+        <label>Amount</label><br>
+        <input type="number" name="amount" value="{{ income[2] }}"><br><br>
+
+        <button type="submit">Update Income</button>
+    </form>
+
+    <br>
+
+    <a href="/"> -Back to Dashboard</a>
+</body>
+</html>
