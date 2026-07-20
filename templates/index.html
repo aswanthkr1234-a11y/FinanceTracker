@@ -130,6 +130,23 @@
         <div class="tab-panels">
             <div class="tab-panel" id="panel_income">
               <div class="table-responsive">
+                <div class = "cards">
+                    <div class="card income-card"
+                    <h3>Total Income</h3>
+                <p>{{ total_income }}</p>
+            </div>
+
+            <div class="card expense-card">
+                <h3>Total Expense</h3>
+                <p>{{ total_expense }}</p>
+
+            </div>
+
+            <div class="card balance-card">
+                <h3>Balance</h3>
+                <p>{{ balance }}</p>
+            </div>
+                </div>
                 <table class="table-striped table-hover">
                     <tr>
                         <th>ID</th>
@@ -351,6 +368,9 @@
   {% endfor %}
   </table
 </div>
+<footer>
+    <p> © 2026 Finance Tracker | Devolopedd by Aswanth </p>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>

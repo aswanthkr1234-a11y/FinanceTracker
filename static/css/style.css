@@ -255,3 +255,114 @@ canvas{
     width:100% !important;
     height:auto !important;
 }
+.cards{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+    margin:30px;
+    flex-wrap:wrap;
+}
+
+.card{
+    width:250px;
+    padding:20px;
+    border-radius: 15px;
+    color:white;
+    text-align: center;
+    font-size:20px;
+    box-shadow:0 5px 10px rgba(0,0,0,0.2);
+}
+.icome-card{
+    background: #28a745;
+}
+
+.expense-card{
+    background:#dc3545;
+}
+
+.balance-card{
+    background: #007bff;
+}
+.card p{
+    font-size:28px;
+    font-weight:bold;
+}
+
+nav{
+    background: #2c3e50;
+    padding:15px;
+    display:flex;
+    justify-content:center;
+    gap:200px;
+
+}
+
+nav a{
+    color:white;
+    text-decoration: none;
+    padding:10px 18px;
+    border-radius:8px;
+    transition:.3s ;
+}
+
+nav a:hover{
+    background:#3498db;
+}
+
+button{
+    background:#28a745;
+    color:white;
+    padding:10px 20px;
+    border:none;
+    border-radius: 8px;
+    cursor:pointer;
+    font-size:16px;
+    transition:.3s;
+
+}
+
+button:hover{
+    background:#218838;
+    transform:scale(1.05);
+
+}
+
+table{
+    width:100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+table th{
+    background: #2c3e50;
+    color:white;
+    padding:12px;
+}
+table td{
+    padding:10px;
+    text-align: center;
+}
+table tr:nth-child(even){
+    background:#f4f4f4;
+}
+table tr:hover{
+    background:#ddd;
+}
+
+form{
+    max-width: 500px;
+    margin:auto;
+}
+
+input,
+select{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border-radius: 8px;
+    border:1px solid #ccc;
+}
+
+input:focus{
+    border:2px solid #3498db;
+    outline:none;
+}
